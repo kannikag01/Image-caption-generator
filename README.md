@@ -1,124 +1,163 @@
 
 
-📸 Image Caption Generator
 
-An  application that generates intelligent and meaningful captions for images using the BLIP (Bootstrapped Language-Image Pre-training) model and a modern Streamlit user interface.
+Image Caption Generator
+````markdown
+An image captioning app that uses Salesforce BLIP to generate natural image captions
+and a modern Streamlit UI to upload images, generate captions, and save captioned outputs.
 
+ Features
 
-🎯 Overview
-
-This project uses Salesforce BLIP, a state-of-the-art image-captioning model, to generate accurate and natural captions.
-Simply upload an image, and the application instantly generates a caption and also saves an output image with the caption attached.
-
-The app also includes a recent history panel, saving up to 50 recent outputs with delete support.
-
-🚀 Features
-
-✔ Upload any image
-✔ AI-generated descriptive captions
-✔ Clean UI with centered captions
-✔ Auto-save outputs into artifacts/outputs/
-✔ Recent history 
-✔ Delete history items
-✔ Modern design
-✔ No training required — uses a pretrained BLIP model
-✔ Works offline once model is downloaded
+ Single-file Streamlit app (`app.py`) for local or cloud use.  
+ Uses the BLIP image-captioning model for high-quality captions.  
+ Auto-saves captioned outputs to `artifacts/outputs/`.  
+ Keeps a recent history panel .  
+ No training required uses pretrained BLIP weights.  
+ Works offline after model weights are cached.
+````
 
 
+Quick start
+```bash
+Recommended: use Python 3.10 or 3.11.
+````
 
-📂 Project Structure
-Image-Caption-Generator/
-│
-├── app.py                  # Main Streamlit application
-├── README.md               # Documentation
-├── requirements.txt        # Dependencies
-├── .gitignore              # Git ignore rules
-│
-└── artifacts/
-    ├── outputs/            # Saved captioned images
-    └── upload/             # Uploaded images (temporary)
-
-🔧 Installation
-1️⃣ Clone the repository
+1. Clone the repository
+```bash
 git clone https://github.com/kannikag01/Image-caption-generator.git
 cd Image-caption-generator
+````
 
-2️⃣ Create a virtual environment
+2. Create and activate a virtual environment
+
+```bash
 python -m venv venv
-
-3️⃣ Activate the environment
-
-Windows:
-
+# Windows
 venv\Scripts\activate
-
-
-Linux/Mac:
-
+# macOS / Linux
 source venv/bin/activate
+```
 
-4️⃣ Install dependencies
+3. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-▶️ Run the App
+> **GPU note for `torch`**: If you want GPU acceleration, install `torch` following the official instructions for your CUDA version (see [https://pytorch.org/get-started/locally/](https://pytorch.org/get-started/locally/)) — for example:
+
+```bash
+# example for CUDA 11.8 (replace with your cuda version if needed)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+```
+
+4. Run the app
+
+```bash
 streamlit run app.py
+```
+
+Open [http://localhost:8501](http://localhost:8501) if Streamlit doesn't open automatically.
 
 
-The app will open automatically or you can visit:
 
-http://localhost:8501/
+ Usage
 
-💾 Saved Outputs
-
-Every captioned image is saved automatically as:
-
-artifacts/outputs/output_YYYYMMDD_HHMMSS.png
+1. Upload an image (JPEG/PNG).
+2. App runs BLIP and shows a generated caption.
+3. Click the UI controls to save / clear / manage recent history.
+4. Saved outputs are stored under `artifacts/outputs/output_YYYYMMDD_HHMMSS.png`.
 
 
-Each saved file contains:
 
-The resized original image
+Project structure
 
-A centered, clean caption
+```
+Image-caption-generator/
+├── app.py                 # Main Streamlit application
+├── inspect_model.py       # Optional: model inspect utilities
+├── requirements.txt       # Python dependencies
+├── README.md
+├── .gitignore
+└── artifacts/
+    ├── outputs/           # Saved captioned images
+    └── upload/            # Temporary uploads (used by app)
+```
 
-White background with neat formatting
+---
 
-🧠 Model Used
-✔ BLIP — Salesforce/blip-image-captioning-base
+ Recommended `requirements.txt`
 
-Transformer-based encoder–decoder
+> Use the `requirements.txt` below (versions chosen to be stable and compatible). If you have an existing `requirements.txt`, either replace or merge versions as appropriate.
 
-High-quality multilingual captioning
+```
+streamlit>=1.20.0
+torch>=2.2.0
+torchvision>=0.15.0
+transformers>=4.34.0
+accelerate>=0.20.0
+huggingface-hub>=0.14.0
+Pillow>=9.0.0
+numpy>=1.24.0
+safetensors>=0.3.0
+tqdm>=4.64.0
+```
 
-Works offline afterwards
+> Notes:
+>
+> * `torch` install is platform/CUDA-specific; follow PyTorch installation instructions for best compatibility.
+> * `safetensors` is optional depending on how model weights are stored/loaded — keep it if you use safetensors or HF-saved safetensors.
 
-State-of-the-art architecture
 
-🛠 Tech Stack
-Component	Technology
-Frontend	Streamlit
-Backend	Python
-AI Model	BLIP (Transformers, PyTorch)
-Image Processing	Pillow
-Storage	artifacts/outputs
-👩‍💻 Author
 
-Kannika G
-AI Developer & Software Engineer
+## Model
 
-📜 License
+* Model used: `Salesforce/blip-image-captioning-base` (pretrained).
+* The model weights are downloaded automatically on first run (Hugging Face cache) and then work offline.
 
-This project is licensed under the MIT License.
-You are free to use, modify, and distribute this software.
 
-🚧 Future Enhancements
+## Deployment tips
 
- Add image drag-and-drop support
+* To deploy to Streamlit Cloud, Heroku, or a container, make sure to:
 
- Add dark/light theme switch
+  * Add `Procfile` (for Heroku) or `streamlit` config.
+  * Ensure `requirements.txt` contains the exact versions used.
+  * Add any environmental variables if required (none for the current app).
+* For GPU-backed deployments, pick a host with GPU support and install `torch` with the proper CUDA wheel.
 
- Add multiple captioning models (BLIP-2, GIT, etc.)
 
- Add download button for output image
 
- Add API version for developers
+## Troubleshooting
+
+* **Model import errors**: Ensure `torch` and `transformers` are installed and compatible. Reinstall `torch` for your CUDA version if necessary.
+* **Large wheel / slow installs**: Install `torch` using the official PyTorch instructions for performance and compatibility.
+* **Permission errors while saving**: Ensure the `artifacts/outputs/` folder exists and is writable. Create it manually if needed:
+
+  ```bash
+  mkdir -p artifacts/outputs
+  mkdir -p artifacts/upload
+  ```
+* **Streamlit port issues**: If port 8501 is blocked, use:
+
+  ```bash
+  streamlit run app.py --server.port 8502
+  ```
+
+---
+
+
+## Author
+
+Kannika G — AI Developer & Software Engineer
+
+---
+
+## Future improvements (suggested)
+
+* Add drag & drop image support.
+* Add download button for captioned outputs.
+* Add model selection (BLIP-2, GIT) or an API server version.
+* Add a small unit-test suite and CI pipeline.
+
+
+
